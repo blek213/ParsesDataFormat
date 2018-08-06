@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -37,30 +38,78 @@ namespace ParsesDataFormat
 
         static void Main(string[] args)
         {
-            string inputString = "03.12.2010";
+            CultureInfo.CurrentCulture = new CultureInfo("ru-Ru"); //Задаем культуру 
+
+            string inputString = "03.04.2016"; //Задаем время
+
+            //var parsedString = DateTime.Parse(inputString).ToString();
+
+            //Console.WriteLine(parsedString);
 
             string validatedString = ValidateDateTime(inputString);
 
-            //  DateTime dt =  DateTime.ParseExact(s, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+            List<string> formatsList = FindFormat(Formats, validatedString);
 
-            for (var i = 0; i < Formats.Length; i++)
+            formatsList = FiltrationPatterns(validatedString, formatsList);
+            
+            foreach (var b in formatsList)
             {
-                try
-                {
-                    DateTime dt = DateTime.ParseExact(validatedString, Formats[i], CultureInfo.InvariantCulture);
-
-                    Console.WriteLine(Formats[i]);
-                }
-                catch (Exception ex)
-                {
-
-                }
+                Console.WriteLine(b);
             }
 
             Console.ReadKey();
         }
 
-        private static string ValidateDateTime(string dateTime)
+        private static List<string> FiltrationPatterns(string validatedString, List<string> formatList) //Функция фильтрации найденных паттернов
+        {
+            var containsDot = validatedString.Contains(".");
+            var containsShesh = validatedString.Contains("/");
+
+            List<string> NotRemoveItems = new List<string>();
+
+            if (containsDot == true)
+            {
+                NotRemoveItems=DeepValidationDateTime(validatedString, NotRemoveItems, formatList,"/");
+            }
+
+            if (containsShesh == true)
+            {
+                NotRemoveItems = DeepValidationDateTime(validatedString,NotRemoveItems, formatList, ".");
+            }
+
+            if (containsDot == false && containsShesh == false)
+            {
+                return formatList;
+            }
+            
+            return NotRemoveItems;
+        }
+
+        private static List<string> DeepValidationDateTime(string validatedString, List<string> NotRemoveItems, List<string> formatList, string character)//Функция удаляет ненужные данные ()
+        {
+            foreach (var format in formatList)
+            {
+                var checkContains = format.Contains(character);
+
+                if (checkContains == true)
+                {
+
+                }
+                else
+                {
+                    NotRemoveItems.Add(format);
+                }
+            }
+
+            if (character == "/") //Логично предположить, что паттерны состоят из точек 
+            {
+                
+            } 
+
+            return NotRemoveItems;
+        }
+
+        private static string ValidateDateTime(string dateTime) //Функция удаляет ненужные данные (время, am, pm )
         {
             var checkCharacter = dateTime.Contains(":");
             var checkAm = dateTime.Contains("am");
@@ -108,7 +157,7 @@ namespace ParsesDataFormat
             return dateTime;
         }
 
-        private static string TruncateFromCharacters(string dateTime, string characters)
+        private static string TruncateFromCharacters(string dateTime, string characters) //Функция поиска паттернов для строки с датой
         {
             int positionCharacter = dateTime.IndexOf(characters);
 
@@ -125,15 +174,17 @@ namespace ParsesDataFormat
             return dateTime.Remove(positionBeforeCharacter, dateTime.Length - positionBeforeCharacter);
         }
 
-        private static int FindFormat(string[] formats, string validatedString)
+        private static List<string> FindFormat(string[] formats, string validatedString)
         {
+            List<string> selectedFormats = new List<string>();
+
             for (var i = 0; i < Formats.Length; i++)
             {
                 try
                 {
-                    DateTime dt = DateTime.ParseExact(validatedString, Formats[i], CultureInfo.InvariantCulture);
+                    DateTime dt = DateTime.ParseExact(validatedString, formats[i], CultureInfo.CurrentCulture);
 
-                    Console.WriteLine(Formats[i]);
+                    selectedFormats.Add(formats[i]);
                 }
                 catch (Exception ex)
                 {
@@ -141,9 +192,8 @@ namespace ParsesDataFormat
                 }
             }
 
-            return 1;        
+            return selectedFormats;        
         }
-
 
     }
 }
