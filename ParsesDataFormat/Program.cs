@@ -38,13 +38,9 @@ namespace ParsesDataFormat
 
         static void Main(string[] args)
         {
-            CultureInfo.CurrentCulture = new CultureInfo("ru-Ru"); //Задаем культуру 
+            CultureInfo.CurrentCulture = new CultureInfo("ru-RU"); //Задаем культуру 
 
-            string inputString = "03.04.2016"; //Задаем время
-
-            //var parsedString = DateTime.Parse(inputString).ToString();
-
-            //Console.WriteLine(parsedString);
+            string inputString = "03.04.2018"; //Задаем время
 
             string validatedString = ValidateDateTime(inputString);
 
@@ -64,6 +60,8 @@ namespace ParsesDataFormat
         {
             var containsDot = validatedString.Contains(".");
             var containsShesh = validatedString.Contains("/");
+            var containsHyphen = validatedString.Contains("-");
+            var contrainsZeroSpace = validatedString.Contains(" ");
 
             List<string> NotRemoveItems = new List<string>();
 
@@ -77,16 +75,29 @@ namespace ParsesDataFormat
                 NotRemoveItems = DeepValidationDateTime(validatedString,NotRemoveItems, formatList, ".");
             }
 
-            if (containsDot == false && containsShesh == false)
+            if(containsHyphen == true)
+            {
+                NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList, "/");
+            }
+
+            if(contrainsZeroSpace == true)
+            {
+                NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList, ".");
+                NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList, "/");
+            }
+
+            if (containsDot == false && containsShesh == false && containsHyphen == false && contrainsZeroSpace == false)
             {
                 return formatList;
             }
-            
+        
             return NotRemoveItems;
         }
 
         private static List<string> DeepValidationDateTime(string validatedString, List<string> NotRemoveItems, List<string> formatList, string character)//Функция удаляет ненужные данные ()
         {
+            CutUslessElements cutUslessElements = new CutUslessElements();
+
             foreach (var format in formatList)
             {
                 var checkContains = format.Contains(character);
@@ -101,10 +112,43 @@ namespace ParsesDataFormat
                 }
             }
 
+            List<string> DeepValidatedItems = new List<string>();
+
             if (character == "/") //Логично предположить, что паттерны состоят из точек 
             {
-                
-            } 
+                //Поскольку состоят из точек, то выходит из этого день.месяц.год  
+                foreach (var format in NotRemoveItems)
+                {
+                    var checkFirstElement = format.IndexOf("M");
+
+                    if (checkFirstElement == 0)
+                    {
+
+                    }
+                    else {
+                        DeepValidatedItems.Add(format);
+                    }
+                }
+
+                //List<string> resultList = new List<string>();
+
+                //Отсечем ненужные форматы.Например, если у нас 05.07.2006, то d/ M / yyyy нам не нужен.
+                if (DeepValidatedItems.Count != 1)
+                {
+                    if(character == "/")
+                    {
+                        return cutUslessElements.CutUsless(validatedString, DeepValidatedItems, ".");
+
+                    }
+                }
+
+            return DeepValidatedItems;
+            }
+            
+            if(character == ".") //Поскольку состоит из слешей, то выходит из этого месяць.день.год 
+            {
+
+            }
 
             return NotRemoveItems;
         }
@@ -181,11 +225,11 @@ namespace ParsesDataFormat
             for (var i = 0; i < Formats.Length; i++)
             {
                 try
-                {
+                {       
                     DateTime dt = DateTime.ParseExact(validatedString, formats[i], CultureInfo.CurrentCulture);
-
                     selectedFormats.Add(formats[i]);
                 }
+
                 catch (Exception ex)
                 {
 
@@ -195,5 +239,6 @@ namespace ParsesDataFormat
             return selectedFormats;        
         }
 
+      
     }
 }
