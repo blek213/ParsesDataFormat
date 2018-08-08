@@ -38,9 +38,9 @@ namespace ParsesDataFormat
 
         static void Main(string[] args)
         {
-            CultureInfo.CurrentCulture = new CultureInfo("gu-IN"); //Задаем культуру 
+            CultureInfo.CurrentCulture = new CultureInfo("pl-PL"); //Задаем культуру 
 
-            string inputString = "03-04-2018"; //Задаем время
+            string inputString = "1993-01-26"; //Задаем время
 
             string validatedString = ValidateDateTime(inputString);
 
@@ -59,9 +59,6 @@ namespace ParsesDataFormat
 
             Console.ReadKey();
         }
-
-        //Warning....................................
-        //Внимание. Если что-то происходит не так, то баг где-то тут находится:
 
         private static string  FiltrationPatterns(string validatedString, List<string> formatList) //Функция фильтрации найденных паттернов
         {
