@@ -38,9 +38,9 @@ namespace ParsesDataFormat
 
         static void Main(string[] args)
         {
-            CultureInfo.CurrentCulture = new CultureInfo("en-US"); //Задаем культуру 
+            CultureInfo.CurrentCulture = new CultureInfo("gu-IN"); //Задаем культуру 
 
-            string inputString = "01-26-1993"; //Задаем время
+            string inputString = "03-04-2018"; //Задаем время
 
             string validatedString = ValidateDateTime(inputString);
 
@@ -102,7 +102,7 @@ namespace ParsesDataFormat
             {
 
                 NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList, "/");
-
+              
                 if (NotRemoveItems.Count != 1)
                 {
                     return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '-');
@@ -121,12 +121,11 @@ namespace ParsesDataFormat
                 }
             }
 
-            //Временно убрал, нужно это или нет: покажет время. 
-            //if (containsDot == false && containsShesh == false && containsHyphen == false && contrainsZeroSpace == false)
-            //{
-            //    return formatList;
-            //}
-        
+            if (containsDot == false && containsShesh == false && containsHyphen == false && contrainsZeroSpace == false)
+            {
+                return formatList.FirstOrDefault();
+            }
+
             return resultString;
         }
 
@@ -148,7 +147,29 @@ namespace ParsesDataFormat
 
             List<string> DeepValidatedItems = new List<string>();
 
-            if (character == "/") //Логично предположить, что паттерны состоят из точек 
+            //Специфические страны. Валидация форматов. 
+            //Индия
+            if (CultureInfo.CurrentCulture.Name == "gu-IN")
+            {
+                foreach (var format in NotRemoveItems)
+                {
+                    var checkFirstElement = format.IndexOf("M");
+
+                    if (checkFirstElement == 0)
+                    {
+
+                    }
+                    else
+                    {
+                        DeepValidatedItems.Add(format);
+                    }
+                }
+
+                return DeepValidatedItems;
+            }
+
+
+            if (character == "/" && validatedString.Contains(".")) //Логично предположить, что паттерны состоят из точек 
             {
                 //Поскольку состоят из точек, то выходит из этого день.месяц.год  
                 foreach (var format in NotRemoveItems)
@@ -160,19 +181,32 @@ namespace ParsesDataFormat
 
                     }
 
-                    else {
+                    else
+                    {
                         DeepValidatedItems.Add(format);
                     }
                 }
 
-            return DeepValidatedItems;
+                return DeepValidatedItems;
             }
-            
-            if(character == ".") //Поскольку состоит из слешей, то выходит из этого месяць.день.год 
+
+            if (character == "." && validatedString.Contains("/")) //Поскольку состоит из слешей, то выходит из этого месяць.день.год 
             {
+                foreach (var format in NotRemoveItems)
+                {
+                    var checkFirstElement = format.IndexOf("d");
 
+                    if (checkFirstElement == 0)
+                    {
+
+                    }
+                    else
+                    {
+                        DeepValidatedItems.Add(format);
+                    }
+                }
             }
-
+       
             return NotRemoveItems;
         }
 
@@ -262,6 +296,5 @@ namespace ParsesDataFormat
             return selectedFormats;        
         }
 
-      
     }
 }
