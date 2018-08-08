@@ -38,9 +38,9 @@ namespace ParsesDataFormat
 
         static void Main(string[] args)
         {
-            CultureInfo.CurrentCulture = new CultureInfo("pl-PL"); //Задаем культуру 
+            CultureInfo.CurrentCulture = new CultureInfo("en-US"); //Задаем культуру 
 
-            string inputString = "1993-01-26"; //Задаем время
+            string inputString = "07.2.3"; //Задаем время
 
             string validatedString = ValidateDateTime(inputString);
 
@@ -83,6 +83,10 @@ namespace ParsesDataFormat
                 {
                     return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '.');
                 }
+                else 
+                {
+                    return NotRemoveItems.FirstOrDefault();
+                }
             }
 
             if (containsShesh == true)
@@ -92,6 +96,10 @@ namespace ParsesDataFormat
                 if (NotRemoveItems.Count != 1)
                 {
                     return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '/');
+                }
+                else
+                {
+                    return NotRemoveItems.FirstOrDefault();
                 }
             }
 
@@ -104,6 +112,10 @@ namespace ParsesDataFormat
                 {
                     return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '-');
                 }
+                else
+                {
+                    return NotRemoveItems.FirstOrDefault();
+                }
             }
 
             if(contrainsZeroSpace == true)
@@ -115,6 +127,10 @@ namespace ParsesDataFormat
                 if (NotRemoveItems.Count != 1)
                 {
                     return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '-');
+                }
+                else
+                {
+                    return NotRemoveItems.FirstOrDefault();
                 }
             }
 
@@ -290,8 +306,8 @@ namespace ParsesDataFormat
                 }
             }
 
+    
             return selectedFormats;        
         }
-
     }
 }

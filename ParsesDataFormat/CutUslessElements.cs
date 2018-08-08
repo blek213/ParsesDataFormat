@@ -20,6 +20,7 @@ namespace ParsesDataFormat
 
             string[] tempArrString = validatedString.Split(new char[] {character});
 
+
             //Разбиваем формат на массив 
 
             foreach (var format in formats)
