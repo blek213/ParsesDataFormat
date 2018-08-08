@@ -38,26 +38,37 @@ namespace ParsesDataFormat
 
         static void Main(string[] args)
         {
-            CultureInfo.CurrentCulture = new CultureInfo("ru-RU"); //Задаем культуру 
+            CultureInfo.CurrentCulture = new CultureInfo("en-US"); //Задаем культуру 
 
-            string inputString = "03.04.2018"; //Задаем время
+            string inputString = "01-26-1993"; //Задаем время
 
             string validatedString = ValidateDateTime(inputString);
 
             List<string> formatsList = FindFormat(Formats, validatedString);
 
-            formatsList = FiltrationPatterns(validatedString, formatsList);
+            string resultString = FiltrationPatterns(validatedString, formatsList);
             
-            foreach (var b in formatsList)
+            if(resultString != "")
             {
-                Console.WriteLine(b);
+                Console.WriteLine(resultString);
+            }
+            else
+            {
+                Console.WriteLine("Не был найден подходящий формат");
             }
 
             Console.ReadKey();
         }
 
-        private static List<string> FiltrationPatterns(string validatedString, List<string> formatList) //Функция фильтрации найденных паттернов
+        //Warning....................................
+        //Внимание. Если что-то происходит не так, то баг где-то тут находится:
+
+        private static string  FiltrationPatterns(string validatedString, List<string> formatList) //Функция фильтрации найденных паттернов
         {
+            string resultString = "";
+
+            CutUslessElements cutUslessElements = new CutUslessElements();
+
             var containsDot = validatedString.Contains(".");
             var containsShesh = validatedString.Contains("/");
             var containsHyphen = validatedString.Contains("-");
@@ -67,37 +78,60 @@ namespace ParsesDataFormat
 
             if (containsDot == true)
             {
-                NotRemoveItems=DeepValidationDateTime(validatedString, NotRemoveItems, formatList,"/");
+                //Отсечем ненужные форматы.Например, если у нас 05.07.2006, то d/ M / yyyy нам не нужен.
+
+                NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList,"/");
+
+                if (NotRemoveItems.Count != 1)
+                {
+                    return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '.');
+                }
             }
 
             if (containsShesh == true)
             {
                 NotRemoveItems = DeepValidationDateTime(validatedString,NotRemoveItems, formatList, ".");
+
+                if (NotRemoveItems.Count != 1)
+                {
+                    return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '/');
+                }
             }
 
             if(containsHyphen == true)
             {
+
                 NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList, "/");
+
+                if (NotRemoveItems.Count != 1)
+                {
+                    return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '-');
+                }
             }
 
             if(contrainsZeroSpace == true)
             {
                 NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList, ".");
                 NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList, "/");
+                NotRemoveItems = DeepValidationDateTime(validatedString, NotRemoveItems, formatList, "-");
+
+                if (NotRemoveItems.Count != 1)
+                {
+                    return cutUslessElements.CutUsless(validatedString, NotRemoveItems, '-');
+                }
             }
 
-            if (containsDot == false && containsShesh == false && containsHyphen == false && contrainsZeroSpace == false)
-            {
-                return formatList;
-            }
+            //Временно убрал, нужно это или нет: покажет время. 
+            //if (containsDot == false && containsShesh == false && containsHyphen == false && contrainsZeroSpace == false)
+            //{
+            //    return formatList;
+            //}
         
-            return NotRemoveItems;
+            return resultString;
         }
 
         private static List<string> DeepValidationDateTime(string validatedString, List<string> NotRemoveItems, List<string> formatList, string character)//Функция удаляет ненужные данные ()
         {
-            CutUslessElements cutUslessElements = new CutUslessElements();
-
             foreach (var format in formatList)
             {
                 var checkContains = format.Contains(character);
@@ -125,20 +159,9 @@ namespace ParsesDataFormat
                     {
 
                     }
+
                     else {
                         DeepValidatedItems.Add(format);
-                    }
-                }
-
-                //List<string> resultList = new List<string>();
-
-                //Отсечем ненужные форматы.Например, если у нас 05.07.2006, то d/ M / yyyy нам не нужен.
-                if (DeepValidatedItems.Count != 1)
-                {
-                    if(character == "/")
-                    {
-                        return cutUslessElements.CutUsless(validatedString, DeepValidatedItems, ".");
-
                     }
                 }
 

@@ -7,56 +7,49 @@ namespace ParsesDataFormat
      class CutUslessElements
     {
        
-        public List<string> CutUsless(string validatedString, List<string> formats, string character)
+        public string CutUsless(string validatedString, List<string> formats, char character)
         {
-            //Подсчеты для validatedString 
+            string resultString="";
 
-            var dCount = 0;
-            var MCount = 0;
+            List<int> countFormat = new List<int>();
+            List<int> countString = new List<int>();
+
+            //Считаем для строки 
+
+            //Разбиваем строку на массив, дальше будет проще работать 
+
+            string[] tempArrString = validatedString.Split(new char[] {character});
+
+            //Разбиваем формат на массив 
 
             foreach (var format in formats)
             {
-                for (var i = 0; i <format.Length; i++)
+                string[] tempArrFormat = format.Split(new char[] { character});
+
+                int positiveCount = 0;
+
+                 for(int i = 0; i < 3; i++)
                 {
-
-                    if (format[i].ToString() == "d")
+                    if(tempArrFormat[i].Length == tempArrString[i].Length)
                     {
-                        dCount++;
-                    }
-
-                    if (format[i].ToString() == "M")
-                    {
-                        MCount++;
+                        positiveCount++;
                     }
                 }
 
-                return DeleteUslessElements(formats, dCount, MCount, character);
+                 if(positiveCount == 3)
+                {
+                    return format;
+                }
+
             }
 
-               
-
-            //Проверка только на d и M. Макс. количество = 2. Если 3, то уже возвращай formats или пропуск. 
-
-
-
-            return formats;
+            return resultString;
         }
 
-        private static List<string> DeleteUslessElements(List<string> formats, int dCount,int MCount, string character)
+        private static int CountSymbols(string format, string character)
         {
-            List<string> resultList = new List<string>();
-    
-            //Убираем ненужные элементы 
-            foreach (var format in formats)
-            {
-                var dCheck = format.Split("d").Length-1;
-                var MCheck = format.Split("M").Length - 1;
-
-
-             
-
-            }
-            return resultList;
+            return format.IndexOf(character);
         }
+
     }
 }
